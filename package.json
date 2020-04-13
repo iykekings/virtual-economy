@@ -1,0 +1,24 @@
+{
+  "name": "virtual-economy",
+  "version": "1.0.0",
+  "description": "A platform for virtual money transfer",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "virtual",
+    "money",
+    "api",
+    "money",
+    "transfer"
+  ],
+  "author": "Ikechukwu Eze",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0"
+  }
+}
