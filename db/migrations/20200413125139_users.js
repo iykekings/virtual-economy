@@ -4,6 +4,7 @@ exports.up = function (knex) {
       table.increments('id');
       table.integer('balance').defaultTo(0);
       table.string('firstName', 255).notNullable();
+      table.string('email', 255).unique().notNullable();
       table.string('lastName', 255).notNullable();
     })
     .createTable('transactions', (table) => {
@@ -25,6 +26,7 @@ exports.up = function (knex) {
         .inTable('users')
         .onDelete('CASCADE')
         .onUpdate('CASCADE');
+      table.datetime('createdAt').defaultTo(knex.fn.now(6));
     });
 };
 
