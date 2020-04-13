@@ -10,6 +10,8 @@ exports.up = function (knex) {
     .createTable('transactions', (table) => {
       table.increments('id');
       table.float('amount').notNullable();
+      // pass precision to now() fn only with postgres - throws in sqlite
+      table.timestamp('createdAt').defaultTo(knex.fn.now());
       table
         .integer('donorId')
         .unsigned()
@@ -26,7 +28,6 @@ exports.up = function (knex) {
         .inTable('users')
         .onDelete('CASCADE')
         .onUpdate('CASCADE');
-      table.datetime('createdAt').defaultTo(knex.fn.now(6));
     });
 };
 
