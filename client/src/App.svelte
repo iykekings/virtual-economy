@@ -25,7 +25,7 @@
     currency: "NGN",
     embed: false,
     disabled: false,
-    value: "Recharge",
+    value: "Fund Wallet",
     callback: function(response) {
       if (response.status === "success") {
         credit(userEmail)
@@ -41,6 +41,7 @@
     name = "";
     user = {};
     loggedIn = false;
+    transactions = [];
   }
   async function updateDetails() {
     user = await fetchUser(user.email);
@@ -141,7 +142,7 @@
       {#if loggedIn}
         <button on:click={logout}>Log out</button>
       {/if}
-      {#if user.id}
+      {#if loggedIn && user.id}
         <div id="user-profile">
           <h2>{user.firstName + ' ' + user.lastName}</h2>
           <p>{user.email}</p>
@@ -166,7 +167,7 @@
           bind:value={recEmail}
           placeholder="Recipient's Email" />
         <button type="submit" on:click|preventDefault={sendMoney}>
-          Fund Wallet
+          Send Money
         </button>
       </form>
     </section>
