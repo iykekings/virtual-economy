@@ -1,6 +1,12 @@
 <script>
   import Paystack from "svelte-paystack";
-  import { credit, postData } from "./helper.js";
+  import {
+    credit,
+    postData,
+    fetchUser,
+    transfer,
+    fetchTransactions
+  } from "./helper.js";
 
   let apiBaseUrl = "http://localhost:3000/api";
   let userEmail = "";
@@ -11,7 +17,7 @@
 
   // transfer
   let recEmail = "";
-  let recAmount = 0;
+  let recAmount;
   let config = {
     key: "pk_test_a869b0564dc0763418d5cfb3b3b7a2590b1312c6",
     email: "iykekings36@gmail.com",
@@ -22,14 +28,12 @@
     value: "Recharge",
     callback: function(response) {
       if (response.status === "success") {
-        credit(userEmail);
-        fetchUser();
+        credit(userEmail)
+          .then(_ => updateDetails())
+          .catch(err => console.log(err));
       } else {
-        console.log(response);
+        alert("Tranfer failed. Try again!");
       }
-    },
-    onClose: function() {
-      console.log("window closed");
     }
   };
   function logout() {
@@ -38,35 +42,22 @@
     user = {};
     loggedIn = false;
   }
-  function login() {
+  async function updateDetails() {
+    user = await fetchUser(user.email);
+  }
+  async function login() {
     if (userEmail && name) {
+      user = await fetchUser(userEmail);
+      if (!user.id) {
+        alert("User doesn't exist");
+      }
       loggedIn = true;
-      fetchUser();
+      transactions = await fetchTransactions(user.id);
     }
   }
-  async function fetchTransactions(id) {
-    let req = await fetch(apiBaseUrl + "/transactions/" + id);
-    transactions = await req.json();
-  }
-
-  async function fetchUser() {
-    let req = await fetch(apiBaseUrl + "/users/" + userEmail);
-    user = await req.json();
-    await fetchTransactions(user.id);
-  }
-
-  async function transfer() {
-    if (recEmail && recAmount && userEmail) {
-      let req = await postData(apiBaseUrl + "/transactions", {
-        donorEmail: userEmail,
-        receiverEmail: recEmail,
-        amount: recAmount
-      });
-      // refresh user account to update UI
-      fetchUser();
-    } else {
-      alert("Transfer fields mustbe filled");
-    }
+  async function sendMoney() {
+    await transfer(recEmail, recAmount, user.email);
+    user = await updateDetails();
   }
 </script>
 
@@ -76,6 +67,49 @@
     padding: 1em;
     max-width: 240px;
     margin: 0 auto;
+  }
+  #dashboard {
+    display: flex;
+    justify-content: center;
+  }
+  #transform {
+    display: flex;
+    flex-direction: column;
+    margin: 0 2rem;
+    padding: 1rem;
+    border: 1px solid tomato;
+  }
+
+  #recharge {
+    border: 1px #8ae28a solid;
+    background-color: #8ae28a0f;
+    padding: 1rem;
+  }
+  #user {
+    display: flex;
+    flex-direction: column-reverse;
+    margin: 0 2rem;
+    color: #3e3e3e;
+    font-weight: 500;
+    padding: 1rem;
+    border: 1px tomato solid;
+    background-color: #f4433614;
+  }
+  aside ul {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+  }
+  aside ul li {
+    display: flex;
+    list-style: none;
+    border: 1px solid #ff63474d;
+    padding: 0.5rem 1rem;
+    margin-bottom: 10px;
+  }
+  aside ul li > * {
+    margin: 0 5px;
   }
 
   h1 {
@@ -98,7 +132,7 @@
     <section id="user">
       <form
         id="loginform"
-        style={!loggedIn ? 'display: block' : 'display: none'}>
+        style={!loggedIn ? 'display: flex' : 'display: none'}>
         <input type="text" bind:value={name} placeholder="Full Name" />
         <input type="email" bind:value={userEmail} placeholder="Email" />
         <button type="submit" on:click|preventDefault={login}>Login</button>
@@ -109,29 +143,30 @@
       {/if}
       {#if user.id}
         <div id="user-profile">
-          <p>Welcome {user.firstName + ' ' + user.lastName}!</p>
-          <p>Email: {user.email}</p>
-          <p>Balance: {user.balance}</p>
+          <h2>{user.firstName + ' ' + user.lastName}</h2>
+          <p>{user.email}</p>
+          <p>Wallet Balance: {user.balance}</p>
         </div>
       {/if}
     </section>
-    <section id="recharge">
-      {#if loggedIn}
-        <p>Recharge your account to easily transfer funds.</p>
-        <div>
-          <Paystack {config} />
-        </div>
-      {/if}
+    <section
+      id="recharge"
+      style={loggedIn ? 'display: block' : 'display: none'}>
+      <h3>Credit your wallet</h3>
+      <div>
+        <Paystack {config} />
+      </div>
     </section>
     <section id="transfers">
-      <form id="transform">
+      <form id="transform" style={loggedIn ? 'display: flex' : 'display: none'}>
+        <h3>Transfer</h3>
         <input type="number" bind:value={recAmount} placeholder="Amount" />
         <input
           type="email"
           bind:value={recEmail}
           placeholder="Recipient's Email" />
-        <button type="submit" on:click|preventDefault={transfer}>
-          Transfer
+        <button type="submit" on:click|preventDefault={sendMoney}>
+          Fund Wallet
         </button>
       </form>
     </section>
@@ -142,8 +177,9 @@
       <ul>
         {#each transactions as trans}
           <li>
-            <p>Amount: {trans.amount}</p>
+            <p>&#x20A6;{trans.amount}</p>
             <p>{trans.donorId == user.id ? 'Debited' : 'credited'}</p>
+            <p>on {new Date(trans.createdAt).toGMTString()}</p>
           </li>
         {/each}
       </ul>
