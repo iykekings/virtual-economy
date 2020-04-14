@@ -1,10 +1,17 @@
 const router = require('express').Router();
 const paykey = 'sk_test_9a8b0b3232890a5764e2806551959146235ac70d';
+const paystack = require('paystack')(paykey);
 const DB = require('../db');
 
-router.get('/transaction/:userId', async (req, res) => {});
+router.get('/transactions/:userId', async (req, res) => {});
 
-router.post('/transaction', async (req, res) => {});
+router.post('/transactions', async (req, res) => {
+  const { donorId, receiverId, amount, references } = req.params;
+  if (donorId && receiverId && amount && references) {
+    try {
+    } catch (error) {}
+  }
+});
 
 router.get('/users/:email', async (req, res) => {
   const { email } = req.params;
