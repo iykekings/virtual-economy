@@ -10,7 +10,7 @@ const getUserByEmail = (email) =>
 
 const getAllTransaction = () => db('transactions');
 
-const getUsersTransaction = (userId) =>
+const getUsersTransactions = (userId) =>
   db('transactions')
     .where('donorId', '=', userId)
     .orWhere('receiverId', '=', userId);
@@ -44,7 +44,7 @@ const createTransaction = async (donorId, receiverId, amount) => {
 
 module.exports = {
   getAllTransaction,
-  getUsersTransaction,
+  getUsersTransactions,
   getTransactionById,
   createTransaction,
   getAllUsers,

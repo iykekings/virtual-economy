@@ -1,7 +1,15 @@
 const router = require('express').Router();
 const DB = require('../db');
 
-router.get('/transactions/:userId', async (req, res) => {});
+router.get('/transactions/:userId', async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const transactions = await DB.getUsersTransactions(userId);
+    res.status(200).json(transactions);
+  } catch (error) {
+    res.status(500).json({ message: error });
+  }
+});
 
 router.post('/users/credit', async (req, res) => {
   const { email, amount } = req.body;

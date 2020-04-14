@@ -4,6 +4,7 @@
 
   let apiBaseUrl = "http://localhost:3000/api";
   let userEmail = "";
+  let transactions = [];
   let name = "";
   let loggedIn = false;
   let user = {};
@@ -43,10 +44,15 @@
       fetchUser();
     }
   }
+  async function fetchTransactions(id) {
+    let req = await fetch(apiBaseUrl + "/transactions/" + id);
+    transactions = await req.json();
+  }
+
   async function fetchUser() {
     let req = await fetch(apiBaseUrl + "/users/" + userEmail);
     user = await req.json();
-    console.log(user);
+    await fetchTransactions(user.id);
   }
 
   async function transfer() {
@@ -56,7 +62,6 @@
         receiverEmail: recEmail,
         amount: recAmount
       });
-      console.log(req);
       // refresh user account to update UI
       fetchUser();
     } else {
@@ -131,4 +136,19 @@
       </form>
     </section>
   </main>
+  <aside>
+    <h3>Your recents Transfers</h3>
+    {#if transactions.length}
+      <ul>
+        {#each transactions as trans}
+          <li>
+            <p>Amount: {trans.amount}</p>
+            <p>{trans.donorId == user.id ? 'Debited' : 'credited'}</p>
+          </li>
+        {/each}
+      </ul>
+    {:else}
+      <p>None</p>
+    {/if}
+  </aside>
 </main>
