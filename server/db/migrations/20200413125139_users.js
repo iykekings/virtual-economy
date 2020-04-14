@@ -12,7 +12,6 @@ exports.up = function (knex) {
       table.float('amount').notNullable();
       // pass precision to now() fn only with postgres - throws in sqlite
       table.timestamp('createdAt').defaultTo(knex.fn.now());
-      table.string('reference').notNullable();
       table
         .integer('donorId')
         .unsigned()

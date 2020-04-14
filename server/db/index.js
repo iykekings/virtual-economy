@@ -18,9 +18,12 @@ const getUsersTransaction = (userId) =>
 const getTransactionById = (id) =>
   db('transactions').where('id', '=', id).first();
 
-const createTransaction = (donorId, receiverId, amount, references) => {
+const creditUser = (email, amount) =>
+  db('users').where('email', email).increment({ balance: amount });
+
+const createTransaction = (donorId, receiverId, amount) => {
   return knex.transaction(async (trx) => {
-    trx('transactions').insert({ donorId, receiverId, amount, references });
+    trx('transactions').insert({ donorId, receiverId, amount });
     trx('users').where('id', '=', donorId).decrement({
       balance: amount,
     });
@@ -37,4 +40,5 @@ module.exports = {
   createTransaction,
   getAllUsers,
   getUserByEmail,
+  creditUser,
 };
