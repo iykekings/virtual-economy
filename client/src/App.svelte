@@ -1,6 +1,6 @@
 <script>
   import Paystack from "svelte-paystack";
-  import { credit } from "./helper.js";
+  import { credit, postData } from "./helper.js";
 
   let apiBaseUrl = "http://localhost:3000/api";
   let userEmail = "";
@@ -10,7 +10,7 @@
 
   // transfer
   let recEmail = "";
-  let recMmount = 0;
+  let recAmount = 0;
   let config = {
     key: "pk_test_a869b0564dc0763418d5cfb3b3b7a2590b1312c6",
     email: "iykekings36@gmail.com",
@@ -50,20 +50,13 @@
   }
 
   async function transfer() {
-    if (recEmail && recMmount) {
-      let req = await fetch(apiBaseUrl + "/transactions/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          donorEmail: userEmail,
-          receiverEmail: recEmail,
-          amount: recMmount
-        })
+    if (recEmail && recAmount && userEmail) {
+      let req = await postData(apiBaseUrl + "/transactions", {
+        donorEmail: userEmail,
+        receiverEmail: recEmail,
+        amount: recAmount
       });
-      let res = await res.json();
-      console.log(res);
+      console.log(req);
       // refresh user account to update UI
       fetchUser();
     } else {
@@ -98,13 +91,15 @@
   <h1>Virtual Economy</h1>
   <main id="dashboard">
     <section id="user">
-      {#if !loggedIn}
-        <form id="loginform">
-          <input type="text" bind:value={name} placeholder="Full Name" />
-          <input type="email" bind:value={userEmail} placeholder="Email" />
-          <button type="submit" on:click|preventDefault={login}>Login</button>
-        </form>
-      {:else}
+      <form
+        id="loginform"
+        style={!loggedIn ? 'display: block' : 'display: none'}>
+        <input type="text" bind:value={name} placeholder="Full Name" />
+        <input type="email" bind:value={userEmail} placeholder="Email" />
+        <button type="submit" on:click|preventDefault={login}>Login</button>
+      </form>
+
+      {#if loggedIn}
         <button on:click={logout}>Log out</button>
       {/if}
       {#if user.id}
@@ -125,7 +120,7 @@
     </section>
     <section id="transfers">
       <form id="transform">
-        <input type="number" bind:value={recMmount} placeholder="Amount" />
+        <input type="number" bind:value={recAmount} placeholder="Amount" />
         <input
           type="email"
           bind:value={recEmail}

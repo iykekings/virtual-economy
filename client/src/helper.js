@@ -1,11 +1,10 @@
 export const API = 'http://localhost:3000/api';
 
 export async function credit(email, amount = 1000) {
-  const creditUser = await postData(API + '/users/credit', { email, amount });
-  console.log(creditUser);
+  await postData(API + '/users/credit', { email, amount });
 }
 
-async function postData(url = '', data = {}) {
+export async function postData(url = '', data = {}) {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
