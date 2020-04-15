@@ -11,3 +11,17 @@ Stacks
 - Svelte for Frontend
 - Paystack
 - SQL
+
+Run
+
+- Server
+
+  `cd server && npm run dev`
+
+- Client
+
+  `cd client && npm run dev`
+
+Test
+
+`npm test`

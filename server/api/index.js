@@ -55,9 +55,12 @@ router.get('/users/:email', async (req, res) => {
   const { email } = req.params;
   try {
     const user = await DB.getUserByEmail(email);
-    res.status(200).json(user);
+    if (user) {
+      return res.status(200).json(user);
+    }
+    return res.status(404).json({ message: 'User not rgeistered' });
   } catch (error) {
-    res.status(500).json({ message: error });
+    return res.status(500).json({ message: error });
   }
 });
 
