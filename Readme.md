@@ -24,4 +24,12 @@ Run
 
 Test
 
-`npm test`
+- Normal Test
+
+  `npm test`
+
+- Test with coverage
+
+  `npm run test:cov`
+
+NB: This was made as an interview assessment task. Feel free to fork or sumbit a PR to extend it. Some obvious features was left out because they were not required in the assessment. A good example is authentication, even though it has lose kind of authentication.

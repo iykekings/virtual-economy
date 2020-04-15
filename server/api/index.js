@@ -16,9 +16,9 @@ router.post('/users/credit', async (req, res) => {
   if (email && amount) {
     try {
       const user = await DB.getUserByEmail(email);
-      if (user.id) {
-        const credit = await DB.creditUser(user.email, amount);
-        return res.status(201).json({ message: credit });
+      if (user) {
+        await DB.creditUser(user.email, amount);
+        return res.status(201).json({ message: 'successfully credited' });
       } else {
         return res.status(404).json({ message: 'user not registered' });
       }
@@ -34,8 +34,16 @@ router.post('/transactions', async (req, res) => {
   if (donorEmail && receiverEmail && amount) {
     try {
       const donor = await DB.getUserByEmail(donorEmail);
+      if (!donor) {
+        return res
+          .status(404)
+          .json({ message: 'Donor not registered, Try signing up first' });
+      }
       if (donor.balance >= amount) {
         const receiver = await DB.getUserByEmail(receiverEmail);
+        if (!receiver) {
+          return res.status(404).json({ message: 'Receiver not registered' });
+        }
         const trans = await DB.createTransaction(donor.id, receiver.id, amount);
         return res.status(201).json({ message: trans });
       }

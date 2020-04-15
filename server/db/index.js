@@ -18,6 +18,10 @@ const getUsersTransactions = (userId) =>
 const getTransactionById = (id) =>
   db('transactions').where('id', '=', id).first();
 
+// strictly for testing purposes
+const updateUserBalanceByEmail = (email, balance) =>
+  db('users').where({ email }).update({ balance });
+
 const creditUser = (email, amount) =>
   db('users').where('email', email).increment({ balance: amount });
 
@@ -49,5 +53,6 @@ module.exports = {
   createTransaction,
   getAllUsers,
   getUserByEmail,
+  updateUserBalanceByEmail,
   creditUser,
 };
