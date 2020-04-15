@@ -11,6 +11,7 @@ Stacks
 - Svelte for Frontend
 - Paystack
 - SQL
+- Jest
 
 Run
 
