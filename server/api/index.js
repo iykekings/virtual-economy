@@ -1,4 +1,6 @@
 const router = require('express').Router();
+const Axios = require('axios').default;
+const seckey = 'sk_test_9a8b0b3232890a5764e2806551959146235ac70d';
 const DB = require('../db');
 
 router.get('/transactions/:userId', async (req, res) => {
@@ -12,9 +14,24 @@ router.get('/transactions/:userId', async (req, res) => {
 });
 
 router.post('/users/credit', async (req, res) => {
-  const { email, amount } = req.body;
+  const { email, amount, reference } = req.body;
   if (email && amount) {
+    if (process.env.NODE_ENV !== 'test' && !reference)
+      return res.status(400).json({ message: 'Provide payment reference' });
+
     try {
+      // verfiy payment from paystack
+      if (process.env.NODE_ENV !== 'test') {
+        const verify = await Axios.get(
+          'https://api.paystack.co/transaction/verify/' + reference,
+          { headers: { Authorization: 'Bearer ' + seckey } }
+        );
+        if (!verify.data.status)
+          return res.status(400).json({
+            message: 'Failed to confirm payment, check with your bank',
+          });
+      }
+
       const user = await DB.getUserByEmail(email);
       if (user) {
         await DB.creditUser(user.email, amount);
@@ -43,6 +60,10 @@ router.post('/transactions', async (req, res) => {
         const receiver = await DB.getUserByEmail(receiverEmail);
         if (!receiver) {
           return res.status(404).json({ message: 'Receiver not registered' });
+        }
+        // check if donor is himself
+        if (receiver.email === donor.email) {
+          return res.status(400).json({ message: 'Cannot transfer to self' });
         }
         const trans = await DB.createTransaction(donor.id, receiver.id, amount);
         return res.status(201).json({ message: trans });

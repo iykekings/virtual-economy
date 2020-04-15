@@ -28,7 +28,7 @@
     value: "Fund Wallet",
     callback: function(response) {
       if (response.status === "success") {
-        credit(userEmail)
+        credit(userEmail, response.reference)
           .then(_ => updateDetails())
           .catch(err => console.log(err));
       } else {
@@ -58,7 +58,7 @@
   }
   async function sendMoney() {
     await transfer(recEmail, recAmount, user.email);
-    user = await updateDetails();
+    await updateDetails();
   }
 </script>
 
@@ -142,7 +142,7 @@
       {#if loggedIn}
         <button on:click={logout}>Log out</button>
       {/if}
-      {#if loggedIn && user.id}
+      {#if loggedIn && user && user.id}
         <div id="user-profile">
           <h2>{user.firstName + ' ' + user.lastName}</h2>
           <p>{user.email}</p>

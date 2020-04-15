@@ -1,7 +1,7 @@
 export const API = 'http://localhost:3000/api';
 
-export async function credit(email, amount = 1000) {
-  await postData(API + '/users/credit', { email, amount });
+export async function credit(email, reference, amount = 1000) {
+  await postData(API + '/users/credit', { email, reference, amount });
 }
 
 export async function postData(url = '', data = {}) {
@@ -12,7 +12,9 @@ export async function postData(url = '', data = {}) {
     },
     body: JSON.stringify(data),
   });
-
+  if (response.status >= 300 || response.status < 200) {
+    throw response.json();
+  }
   return response.json();
 }
 
@@ -27,7 +29,6 @@ export async function fetchUser(userEmail) {
 }
 
 export async function transfer(recEmail, recAmount, userEmail) {
-  console.log({ recEmail, recAmount, userEmail });
   if (recEmail && recAmount && userEmail) {
     try {
       await postData(API + '/transactions', {
@@ -37,7 +38,12 @@ export async function transfer(recEmail, recAmount, userEmail) {
       });
       alert('Transfer successful');
     } catch (error) {
-      alert('Transfer failed, try again!');
+      if (error instanceof Promise) {
+        const err = await error;
+        alert(err.message);
+      } else {
+        alert('Transfer failed, try again!');
+      }
     }
   } else {
     alert('Transfer fields must be filled');
