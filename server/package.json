@@ -6,7 +6,9 @@
   "scripts": {
     "test": "jest",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "pretest": "npx knex migrate:up --env test && npx knex seed:run --env test",
+    "posttest": "npx knex migrate:rollback --env test"
   },
   "keywords": [
     "virtual",

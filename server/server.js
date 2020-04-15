@@ -8,7 +8,7 @@ server.use(express.json());
 server.use('/api', transRouter);
 
 server.get('/', (_, res) => {
-  res.json({ message: 'Api exposed at /api' });
+  res.status(200).json({ message: 'Api exposed at /api' });
 });
 
 module.exports = server;
